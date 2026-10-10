@@ -159,19 +159,23 @@ export default function Wheel({
           菜单空空的，添加一道喜欢的菜
         </button>
       )}
-      <AnimatePresence>
+      <AnimatePresence mode="wait">
         {result && (
           <motion.div
-            className="result"
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
+            key={result.id}
+            className="result result-featured"
+            role="status"
+            aria-live="polite"
+            initial={{ opacity: 0, y: 24, scale: 0.92 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -8, scale: 0.97 }}
+            transition={{ type: "spring", stiffness: 250, damping: 22 }}
           >
-            <div className="result-celebration" aria-hidden="true">🍙 ✨ 💛</div><span className="eyebrow">✦ 今天的幸运答案 ✦</span>
-            <h3>
-              {result.emoji} {result.name}
-            </h3>
+            <div className="result-celebration" aria-hidden="true">🍙 ✨ 💛</div><span className="eyebrow">✦ 小饭团帮你决定啦 ✦</span>
+            <div className="result-food-icon" aria-hidden="true">{result.emoji}</div>
+            <h3>{result.name}</h3>
             <p className="result-message">{surprise ? "🎁 小饭团悄悄说：今天的好运藏在这顿饭里！" : meal === "lunch" ? "午间充电时间到，好好享受这一餐吧！" : "辛苦一天啦，用喜欢的味道温柔收尾。"}</p>
-            <p>
+            <p className="result-kcal">
               {result.kcal !== undefined
                 ? `参考热量：约${result.kcal} kcal`
                 : "热量待手动填写"}
@@ -183,8 +187,9 @@ export default function Wheel({
                 setResult(undefined);
               }}
             >
-              💛 就吃这个！
+              💛 就决定是你啦！
             </button>
+            <p className="result-afterword">不满意也没关系，可以再试试手气 ✨</p>
           </motion.div>
         )}
       </AnimatePresence>
