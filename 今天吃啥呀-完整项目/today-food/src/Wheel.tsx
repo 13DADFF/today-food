@@ -59,7 +59,7 @@ export default function Wheel({
   const colors =
     meal === "lunch"
       ? ["#FFE1AA", "#FFC7A1", "#FFF0D3", "#FFD4C3", "#F3E4AD", "#FFEAD7"]
-      : ["#DDD0F2", "#C9D9F3", "#E9DCF6", "#D3E5E3", "#E1DDF7", "#F4D9E7"];
+      : ["#FFE2CE", "#FFD1BD", "#FFF0D9", "#F8DACB", "#FFE8CA", "#FBE3D6"];
   const n = foods.length;
   const point = (a: number, r = 135) => [
     150 + Math.sin((a * Math.PI) / 180) * r,
@@ -124,9 +124,9 @@ export default function Wheel({
                       y={t[1]}
                       textAnchor="middle"
                       dominantBaseline="middle"
-                      fontSize={n > 12 ? 10 : 12}
-                      fill="#514139"
-                      transform={`rotate(${(a + b) / 2},${t[0]},${t[1]})`}
+                      fontSize={n > 12 ? 10 : n > 8 ? 11 : 12}
+                      fill="#653F2D"
+                      transform={`rotate(${(a + b) / 2 > 90 && (a + b) / 2 < 270 ? (a + b) / 2 + 180 : (a + b) / 2},${t[0]},${t[1]})`}
                     >
                       {n > 16
                         ? i + 1
@@ -163,7 +163,7 @@ export default function Wheel({
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <span className="eyebrow">✦ 今天的幸运答案 ✦</span>
+            <div className="result-celebration" aria-hidden="true">🎉 ✨ 🎊</div><span className="eyebrow">✦ 今天的幸运答案 ✦</span>
             <h3>
               {result.emoji} {result.name}
             </h3>
