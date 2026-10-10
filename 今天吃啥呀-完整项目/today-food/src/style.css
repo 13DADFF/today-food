@@ -765,3 +765,68 @@ h2 { letter-spacing: -.6px; color: #513323; }
   .wheel-wrap { max-width:292px; }
   .card { border-radius:26px; }
 }
+
+/* v2: joyful illustrated hero, peach dinner, readable wheels and gentle tracking */
+main { max-width: 980px; }
+.brand-icon { font-size: 30px; }
+.hero-intro {
+ display:flex; align-items:center; justify-content:space-between; gap:16px;
+ position:relative; isolation:isolate; overflow:hidden;
+ padding:26px 30px; margin:12px 0 20px; min-height:186px;
+ border-radius:32px; border:1px solid #f9d9b1;
+ background:linear-gradient(110deg,#fff0d5 0%,#ffdfb5 58%,#ffcfaa 100%);
+ box-shadow:0 14px 35px #d88c4b16;
+}
+.hero-intro::before {content:"";position:absolute;width:260px;height:260px;right:-75px;top:-110px;border-radius:50%;background:#fff6e68c;z-index:-1;}
+.hero-kicker {display:block;font-size:10px;font-weight:800;letter-spacing:1.3px;color:#a96a3b;margin-bottom:10px;}
+.hero-copy {position:relative;z-index:1;}
+.hero-copy h2 {font-size:clamp(24px,3.2vw,34px);line-height:1.35;letter-spacing:-1.1px;color:#65391f;margin:0 0 9px;font-weight:850;}
+.hero-copy h2 em {font-style:normal;color:#e37b3a;}
+.hero-copy p {font-size:13px;color:#96623f;margin:0;}
+.hero-art {position:relative;flex:0 0 185px;height:150px;display:grid;place-items:center;}
+.hero-bowl {font-size:92px;filter:drop-shadow(0 14px 8px #b77a4230);transform:rotate(-8deg);animation:bowl-bob 4s ease-in-out infinite;}
+.hero-sun {position:absolute;top:-17px;right:10px;font-size:48px;color:#ffac55;animation:sun-spin 22s linear infinite;}
+.hero-spark {position:absolute;left:10px;top:14px;font-size:27px;color:#fff;}
+.hero-spark-two {position:absolute;right:0;bottom:8px;font-size:31px;color:#fff7eb;}
+@keyframes bowl-bob {0%,100%{transform:translateY(0) rotate(-8deg)}50%{transform:translateY(-7px) rotate(-4deg)}}
+@keyframes sun-spin {to{transform:rotate(360deg)}}
+.energy {background:linear-gradient(115deg,#fff6ee,#ffede2);border-color:#f8e1cf;}
+.energy::after {font-size:100px;opacity:.55;}
+.energy p {font-size:17px;}
+.wheel-card {transition:box-shadow .25s,transform .25s;}
+.wheel-card:hover {box-shadow:0 19px 44px #bb793225;}
+.wheel-card.dinner {background:linear-gradient(150deg,#fff0e5,#fff8f0 80%);border-color:#f4d5c2;}
+.wheel-card.dinner .primary {background:linear-gradient(180deg,#ffa984,#ed845e);}
+.wheel-card .section-head h2 {font-size:23px;}
+.wheel-wrap {max-width:330px;}
+.wheel-wrap svg {border-width:10px;}
+.wheel-card .spin {letter-spacing:.4px;font-size:16px;}
+.result {border:2px solid #ffdab7;background:linear-gradient(160deg,#fffaf3,#fff1dc);padding:19px 16px;box-shadow:0 9px 25px #d18a4320;}
+.result-celebration {font-size:25px;letter-spacing:8px;animation:celebrate-pop .55s ease-out both;}
+@keyframes celebrate-pop {from{transform:scale(.65);opacity:0}to{transform:scale(1);opacity:1}}
+.result h3 {font-size:24px;color:#b85d2e;margin:9px 0;}
+.result .secondary {background:#fff;border:1px solid #f5c89f;font-weight:800;}
+.today {background:linear-gradient(180deg,#fffefa,#fffaf3);}
+.meal-progress {background:#fff2e4;border:1px solid #fae1c8;border-radius:18px;padding:15px 17px;margin-top:19px;}
+.meal-progress-label {display:flex;align-items:center;justify-content:space-between;color:#85563b;font-size:12px;font-weight:650;}
+.meal-progress-label strong {color:#db773c;font-size:14px;}
+.meal-progress-track {height:9px;background:#f5dfc9;border-radius:20px;margin:10px 0;overflow:hidden;}
+.meal-progress-fill {height:100%;background:linear-gradient(90deg,#ffc273,#f48a4e);border-radius:20px;transition:width .35s ease;}
+.meal-progress p {font-size:11px;color:#a17b5f;margin:4px 0 0;}
+.total {margin-top:19px;}
+.bottom-links button {transition:transform .18s,background .18s;}
+.bottom-links button:hover {background:#ffe6cb;transform:translateY(-2px);}
+@media(max-width:600px){
+ .hero-intro {padding:22px 19px;min-height:156px;border-radius:27px;gap:0;}
+ .hero-copy h2 {font-size:24px;}
+ .hero-copy p {font-size:11px;max-width:215px;}
+ .hero-kicker {font-size:9px;letter-spacing:.5px;}
+ .hero-art {flex:0 0 100px;height:120px;margin-left:-15px;}
+ .hero-bowl {font-size:69px;}
+ .hero-sun {font-size:31px;right:3px;top:0;}
+ .hero-spark {font-size:20px;left:0;}
+ .wheel-card .section-head h2 {font-size:22px;}
+ .wheel-wrap {max-width:300px;}
+}
+@media(max-width:360px){.hero-art{flex-basis:78px}.hero-bowl{font-size:58px}.hero-copy h2{font-size:21px}}
+@media(prefers-reduced-motion:reduce){.hero-bowl,.hero-sun,.result-celebration{animation:none!important}}
