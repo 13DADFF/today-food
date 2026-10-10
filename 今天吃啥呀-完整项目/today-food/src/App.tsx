@@ -280,7 +280,7 @@ export default function App() {
     <main>
       <header>
         <div className="brand">
-          <span className="brand-icon">🍜</span>
+          <span className="brand-icon" aria-hidden="true">🍜</span>
           <div>
             <p className="eyebrow">把选择交给幸运，把日子过得有味</p>
             <h1>今天吃啥呀</h1>
@@ -305,6 +305,7 @@ export default function App() {
               : "晚上好，一顿热饭，安顿今天。"}
         </p>
       </header>
+      <div className="hero-intro" aria-label="今日饮食小鼓励"><div className="hero-copy"><span className="hero-kicker">✦ 好好吃饭俱乐部 · DAILY JOY</span><h2>今天的快乐，<br /><em>从好好吃饭开始。</em></h2><p>不用纠结下一餐，交给幸运小转盘吧！</p></div><div className="hero-art" aria-hidden="true"><span className="hero-sun">✳</span><span className="hero-bowl">🍚</span><span className="hero-spark">✦</span><span className="hero-spark-two">✧</span></div></div>
       <motion.section
         className="energy"
         key={quote.id}
@@ -389,6 +390,7 @@ export default function App() {
             </button>
           </div>
         ))}
+        <div className="meal-progress"><div className="meal-progress-label"><span>今日记录进度</span><strong>{(["lunch", "dinner"] as Meal[]).filter((m) => !!state.records[today]?.[m]?.length).length}/2 餐</strong></div><div className="meal-progress-track"><div className="meal-progress-fill" style={{ width: `${(["lunch", "dinner"] as Meal[]).filter((m) => !!state.records[today]?.[m]?.length).length * 50}%` }} /></div><p>记录的是习惯，不是给自己打分 💛</p></div>
         <div className="total">
           <span>今日已记录热量</span>
           <strong>
