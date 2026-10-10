@@ -675,3 +675,93 @@ textarea {
     scroll-behavior: auto !important;
   }
 }
+
+
+/* Warm orange & cream visual refresh — presentation only; no data model changes */
+:root {
+  color: #453124;
+  background: #fff8ed;
+}
+body {
+  background:
+    radial-gradient(ellipse 80% 340px at 15% 0%, #ffe1b9 0%, transparent 78%),
+    radial-gradient(ellipse 60% 280px at 95% 17%, #ffe9da 0%, transparent 80%),
+    #fff8ed;
+  min-height: 100dvh;
+}
+main { max-width: 1020px; padding-top: 32px; }
+header { margin-bottom: 26px; }
+.brand-icon {
+  background: linear-gradient(145deg,#ffbc74,#ff874e);
+  border: 2px solid #fff7e9;
+  box-shadow: 0 9px 20px #d56b3c2c, inset 0 2px 0 #ffffff80;
+  transform: rotate(-5deg);
+}
+h1 { font-weight: 850; letter-spacing: -1.2px; color: #50301e; }
+h2 { letter-spacing: -.6px; color: #513323; }
+.eyebrow { color: #a27c60; font-weight: 650; }
+.clock { background: #fff; border: 1px solid #f7dfc5; border-radius: 999px; color: #b56939; box-shadow: 0 4px 12px #b8783a0c; }
+.energy {
+  position: relative; overflow: hidden;
+  background: linear-gradient(115deg,#ffcf9e 0%,#ffe2bf 53%,#fff0df 100%);
+  border: 1px solid #ffd2a2;
+  border-radius: 30px;
+  box-shadow: 0 12px 32px #bd76341b, inset 0 1px 0 #ffffffb0;
+  padding: 24px 26px;
+}
+.energy::after { content: "✦"; position:absolute; right: 20px; top: -26px; font-size: 112px; line-height:1; color: #ffffff67; pointer-events:none; }
+.energy p { position:relative; z-index:1; color:#6c3d25; font-weight:650; }
+.wheels { gap: 22px; }
+.wheel-card {
+  position:relative; overflow:hidden;
+  background: linear-gradient(155deg,#fff0d9,#fff9ed 72%);
+  border: 1px solid #ffdcaf;
+  border-radius: 34px;
+  box-shadow: 0 16px 38px #bb79321a, 0 3px 9px #bb79320b, inset 0 1px 0 #fff;
+  padding: 28px 26px 24px;
+}
+.wheel-card::before { content:""; position:absolute; width:150px; height:150px; right:-75px; top:-75px; background:#ffdba1; border-radius:50%; opacity:.25; pointer-events:none; }
+.wheel-card.dinner { background:linear-gradient(155deg,#fff0e4,#fff7ef 72%); border-color:#f5d8c7; }
+.dinner .eyebrow { color:#b7856b; }
+.wheel-wrap { width:min(100%, 310px); margin: 23px auto; filter:drop-shadow(0 15px 14px #b66e3b25); }
+.wheel-wrap svg { border:9px solid #fff; box-shadow:0 0 0 2px #f7d6a7,0 7px 0 #f0c897; }
+.pointer { border-top-color:#e56e3c; filter:drop-shadow(0 2px 1px #9b492b40); }
+.dinner .pointer { border-top-color:#e48d69; }
+.wheel-dot { color:#eea55d; }
+.primary {
+  background:linear-gradient(180deg,#ffae5f 0%,#ff873e 100%);
+  color:#fff;
+  border:1px solid #f28c42;
+  border-radius:18px;
+  min-height:54px;
+  box-shadow:0 6px 0 #d76a30,0 11px 18px #e47c3c29;
+  text-shadow:0 1px 0 #b94d2b25;
+}
+.dinner .primary { background:linear-gradient(180deg,#f9ac86,#ed845e); color:#fff; border-color:#e58c6b; box-shadow:0 6px 0 #c96f51,0 11px 18px #e47c3c22; }
+.primary:hover:not(:disabled) { filter:brightness(1.04); transform:translateY(-2px); }
+.primary:active:not(:disabled) { transform:translateY(4px); box-shadow:0 2px 0 #d76a30; }
+.secondary { background:#fff9f1; border:1px solid #f0dac4; color:#945c3b; border-radius:16px; }
+.result { background:#fff; border:1px solid #f7e2ca; box-shadow:0 7px 20px #bd79300d; }
+.card {
+  background:#fffefb; border:1px solid #f1dfcb;
+  border-radius:30px; box-shadow:0 12px 30px #bb793214, inset 0 1px 0 #fff;
+}
+.meal-emoji { background:linear-gradient(145deg,#fff0d5,#ffe0b9); border-radius:18px; }
+.meal-row:nth-child(3) .meal-emoji { background:linear-gradient(145deg,#ffe7d7,#fbd7c5); }
+.small-button { background:#fff1df; border:1px solid #f6dfc1; border-radius:14px; }
+.total strong { color:#ec7b39; font-size:27px; }
+.bottom-links button { background:#fff0dc; border:1px solid #f7e0c4; border-radius:20px; }
+.icon-button:hover, .text-button:hover, .small-button:hover { background:#ffe8d0; }
+.modal { background:#fffaf2; border:1px solid #f1ddc5; }
+.tabs { background:#f8e9d6; }
+.tabs .active { color:#a45228; }
+.day-chips .active { background:#ff9b54; color:white; }
+.toast { background:#573b2b; border:1px solid #ffffff20; }
+@media (max-width:600px) {
+  main { padding:22px 16px calc(32px + env(safe-area-inset-bottom)); }
+  .wheel-card { padding:24px 21px 22px; border-radius:30px; }
+  .energy { padding:20px; }
+  .wheels { gap:18px; }
+  .wheel-wrap { max-width:292px; }
+  .card { border-radius:26px; }
+}
