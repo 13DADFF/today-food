@@ -276,6 +276,9 @@ export default function App() {
     hourCycle: "h23",
   }).format(now);
   const hour = Number(clock.slice(0, 2));
+  const recordedDays = Object.values(state.records).filter((day) => !!day?.lunch?.length || !!day?.dinner?.length).length;
+  const dayNumber = Math.floor(Date.UTC(Number(today.slice(0, 4)), Number(today.slice(5, 7)) - 1, Number(today.slice(8, 10))) / 86400000);
+  const surpriseToday = dayNumber % 5 === 2;
   return (
     <main>
       <header>
@@ -306,6 +309,7 @@ export default function App() {
         </p>
       </header>
       <div className="hero-intro" aria-label="今日饮食小鼓励"><div className="hero-copy"><span className="hero-kicker">✦ 好好吃饭俱乐部 · DAILY JOY</span><h2>今天的快乐，<br /><em>从好好吃饭开始。</em></h2><p>不用纠结下一餐，交给幸运小转盘吧！</p></div><div className="hero-art" aria-hidden="true"><span className="hero-sun">✳</span><span className="hero-bowl">🍚</span><span className="hero-spark">✦</span><span className="hero-spark-two">✧</span></div></div>
+      {(recordedDays >= 3 || surpriseToday) && <aside className="gentle-surprise" aria-label="今日小惊喜"><span aria-hidden="true">{recordedDays >= 3 ? "🏅" : "💌"}</span><p>{recordedDays >= 3 ? `已经在 ${recordedDays} 天留下好好吃饭的记录啦，每一份用心都值得被看见。` : "偷偷送你一颗小星星：今天也值得吃一顿喜欢的饭。"}<small>来自小饭团的悄悄话 ✨</small></p></aside>}
       <motion.section
         className="energy"
         key={quote.id}
