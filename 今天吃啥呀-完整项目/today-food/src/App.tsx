@@ -1,3 +1,4 @@
+import CloudSync from "./CloudSync";
 import Wheel from "./Wheel";
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
@@ -308,6 +309,7 @@ export default function App() {
               : "晚上好，一顿热饭，安顿今天。"}
         </p>
       </header>
+      <CloudSync state={state} setState={setState} />
       <div className="hero-intro" aria-label="今日饮食小鼓励"><div className="hero-copy"><span className="hero-kicker">✦ 好好吃饭俱乐部 · DAILY JOY</span><h2>今天的快乐，<br /><em>从好好吃饭开始。</em></h2><p>不用纠结下一餐，交给幸运小转盘吧！</p></div><div className="hero-art" aria-hidden="true"><span className="hero-sun">✳</span><span className="hero-bowl">🍚</span><span className="hero-spark">✦</span><span className="hero-spark-two">✧</span></div></div>
       {(recordedDays >= 3 || surpriseToday) && <aside className="gentle-surprise" aria-label="今日小惊喜"><span aria-hidden="true">{recordedDays >= 3 ? "🏅" : "💌"}</span><p>{recordedDays >= 3 ? `已经在 ${recordedDays} 天留下好好吃饭的记录啦，每一份用心都值得被看见。` : "偷偷送你一颗小星星：今天也值得吃一顿喜欢的饭。"}<small>来自小饭团的悄悄话 ✨</small></p></aside>}
       <motion.section
@@ -973,7 +975,7 @@ export default function App() {
                       内置常见中餐的粗略参考值，采用完整名称匹配，不联网识别。分量、用油和配料不同，热量可能明显变化；建议以包装信息或实际食材计算为准。不设置默认饮食上限。
                     </p>
                     <p className="hint">
-                      所有数据保存在这台设备的当前浏览器中。更换网址、浏览器或手机时，请用备份迁移。
+                      未开启云同步时，数据仅保存在当前浏览器。开启云同步后也建议定期导出备份。
                     </p>
                   </>
                 )}
