@@ -20,7 +20,8 @@ export default function Wheel({
 }) {
   const [angle, setAngle] = useState(0),
     [busy, setBusy] = useState(false),
-    [result, setResult] = useState<Food>();
+    [result, setResult] = useState<Food>(),
+    [surprise, setSurprise] = useState(false);
   const lock = useRef(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const reduced = useReducedMotion();
@@ -38,6 +39,7 @@ export default function Wheel({
     lock.current = true;
     setBusy(true);
     setResult(undefined);
+    setSurprise(false);
     const bytes = new Uint32Array(1);
     let value: number;
     const cap = Math.floor(4294967296 / foods.length) * foods.length;
@@ -50,6 +52,7 @@ export default function Wheel({
     timer.current = setTimeout(
       () => {
         setResult(foods[i]);
+        setSurprise(!quiet && crypto.getRandomValues(new Uint32Array(1))[0] % 5 === 0);
         setBusy(false);
         lock.current = false;
       },
@@ -163,10 +166,11 @@ export default function Wheel({
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <div className="result-celebration" aria-hidden="true">🎉 ✨ 🎊</div><span className="eyebrow">✦ 今天的幸运答案 ✦</span>
+            <div className="result-celebration" aria-hidden="true">🍙 ✨ 💛</div><span className="eyebrow">✦ 今天的幸运答案 ✦</span>
             <h3>
               {result.emoji} {result.name}
             </h3>
+            <p className="result-message">{surprise ? "🎁 小饭团悄悄说：今天的好运藏在这顿饭里！" : meal === "lunch" ? "午间充电时间到，好好享受这一餐吧！" : "辛苦一天啦，用喜欢的味道温柔收尾。"}</p>
             <p>
               {result.kcal !== undefined
                 ? `参考热量：约${result.kcal} kcal`
@@ -179,7 +183,7 @@ export default function Wheel({
                 setResult(undefined);
               }}
             >
-              好！就吃这个
+              💛 就吃这个！
             </button>
           </motion.div>
         )}
