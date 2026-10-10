@@ -55,6 +55,7 @@ export default function CloudSync({ state, setState }: { state: State; setState:
       const data = validate(row.data);
       if (readyRef.current && row.version === versionRef.current) return;
       if (readyRef.current && appliedRef.current !== JSON.stringify(stateRef.current)) { setStatus("检测到本机未同步修改，已暂停自动覆盖。请先备份并手动处理。"); readyRef.current = false; setReady(false); return; }
+      if (!readyRef.current && !confirm("云端已有数据。下载后会覆盖本机当前数据，建议先到设置导出 JSON 备份。确定下载云端数据吗？")) { setStatus("已取消下载，云端数据未覆盖本机。请先备份，再手动选择同步。"); return; }
       setState(data); appliedRef.current = JSON.stringify(data);
       versionRef.current = row.version; setCloudVersion(row.version);
       readyRef.current = true; setReady(true); setStatus("已从云端同步 · " + new Date().toLocaleTimeString("zh-CN"));
