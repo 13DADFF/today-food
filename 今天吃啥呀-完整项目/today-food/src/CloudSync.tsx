@@ -9,7 +9,7 @@ const read = <T,>(key: string): T | null => { try { return JSON.parse(localStora
 type Config = { url: string; key: string };
 function configOk(c: Config) { try { const u = new URL(c.url); return u.protocol === "https:" && /\.supabase\.co$/.test(u.hostname) && !!c.key.trim(); } catch { return false; } }
 async function api(c: Config, path: string, init: RequestInit = {}, token?: string) {
-  const r = await fetch(c.url.replace(/\/$/, "") + path, { ...init, headers: { apikey: c.key, Authorization: "Bearer " + (token || c.key), "Content-Type": "application/json", ...init.headers } });
+  const r = await fetch(c.url.replace(/\/$/, "") + path, { ...init, signal: AbortSignal.timeout(15000), headers: { apikey: c.key, Authorization: "Bearer " + (token || c.key), "Content-Type": "application/json", ...init.headers } });
   const raw = await r.text();
   let data: any; try { data = JSON.parse(raw); } catch { data = raw; }
   if (!r.ok) throw Error(typeof data?.msg === "string" ? data.msg : data?.error_description || data?.message || "云端请求失败（" + r.status + "）");
@@ -115,7 +115,8 @@ export default function CloudSync({ state, setState }: { state: State; setState:
       localStorage.setItem(CONFIG_KEY, JSON.stringify(config));
       await api(config, "/auth/v1/otp", { method: "POST", body: JSON.stringify({ email: email.trim(), create_user: true, email_redirect_to: "https://13dadff.github.io/today-food/" }) });
       setStatus("登录邮件已发送。请在当前设备打开邮件里的登录链接，然后返回网站。");
-    } catch(e) { setStatus((e as Error).message); }
+    } catch(e) { setStatus((e as Error).name === "TimeoutError" ? "发送超时，请检查网络后重试" : (e as Error).message); }
+    finally { setSending(false); }
   }
   useEffect(() => {
     const hash = new URLSearchParams(window.location.hash.slice(1));
