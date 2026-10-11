@@ -3,6 +3,7 @@ import { type State, validate } from "./model";
 
 type Session = { access_token: string; refresh_token: string; expires_at: number; user: { id: string; email?: string } };
 const CONFIG_KEY = "today-food-cloud-config";
+const DEFAULT_CONFIG: Config = { url: "https://xtqcdeektwpsoqptjdli.supabase.co", key: "sb_publishable_UMwlVO12vFqPFMGS8PViGQ_kQntcYV9" };
 const SESSION_KEY = "today-food-cloud-session";
 const read = <T,>(key: string): T | null => { try { return JSON.parse(localStorage.getItem(key) || "null") as T; } catch { return null; } };
 type Config = { url: string; key: string };
@@ -15,7 +16,7 @@ async function api(c: Config, path: string, init: RequestInit = {}, token?: stri
   return data;
 }
 export default function CloudSync({ state, setState }: { state: State; setState: (s: State) => void }) {
-  const [config, setConfig] = useState<Config>(() => read<Config>(CONFIG_KEY) || { url: "", key: "" });
+  const [config, setConfig] = useState<Config>(() => DEFAULT_CONFIG);
   const [session, setSession] = useState<Session | null>(() => read<Session>(SESSION_KEY));
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
@@ -145,11 +146,9 @@ export default function CloudSync({ state, setState }: { state: State; setState:
     {open && <div className="cloud-panel">
       <p className="hint">电脑与手机使用同一个邮箱账号。首次连接前请先在「设置」导出 JSON 备份。云端与本机数据冲突时不会自动合并。</p>
       {!session ? <>
-        <label>Supabase 项目 URL<input value={config.url} placeholder="https://xxxx.supabase.co" onChange={e => setConfig({ ...config, url: e.target.value.trim() })} /></label>
-        <label>Supabase publishable / anon key<input value={config.key} placeholder="sb_publishable_... 或 eyJ..." onChange={e => setConfig({ ...config, key: e.target.value.trim() })} /></label>
         <label>登录邮箱<input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="friend@example.com" /></label>
         <button className="secondary" disabled={sending || verifying || !email.includes("@")} onClick={() => void sendLink()}>{sending ? "发送中…" : "发送邮箱登录链接"}</button>
-        <p className="hint">请在当前设备打开邮件中的登录链接。首次登录前，请在 Supabase 的 Authentication → URL Configuration 中把 https://13dadff.github.io/today-food/ 添加到 Redirect URLs，并设为 Site URL。</p>
+        <p className="hint">请在当前设备打开邮件中的登录链接，返回网站后完成登录。首次上传前，请先导出本机数据备份。</p>
       </> : <>
         <p>当前账号：{session.user.email || "已登录"}</p>
         <p className="hint">云端版本：{cloudVersion ?? "尚未建立"}。有网络时自动上传改动，切换设备时会尝试拉取最新版本。</p>
