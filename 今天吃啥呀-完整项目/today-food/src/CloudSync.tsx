@@ -19,7 +19,7 @@ export default function CloudSync({ state, setState }: { state: State; setState:
   const [session, setSession] = useState<Session | null>(() => read<Session>(SESSION_KEY));
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
-  const [otp, setOtp] = useState("");
+
   const [status, setStatus] = useState("未连接云端");
   const [ready, setReady] = useState(false);
   const [cloudVersion, setCloudVersion] = useState<number | null>(null);
@@ -106,27 +106,36 @@ export default function CloudSync({ state, setState }: { state: State; setState:
     const t = setTimeout(() => void push(), 900);
     return () => clearTimeout(t);
   }, [state, ready]);
-  async function sendCode() {
+  async function sendLink() {
     if (sending) return;
     setSending(true);
     try {
       if (!configOk(config)) throw Error("请先填写有效的 Supabase 项目 URL 和 publishable/anon key");
       localStorage.setItem(CONFIG_KEY, JSON.stringify(config));
-      await api(config, "/auth/v1/otp", { method: "POST", body: JSON.stringify({ email, create_user: true }) });
-      setStatus("验证码已发送到邮箱，请检查收件箱和垃圾邮件");
+      await api(config, "/auth/v1/otp", { method: "POST", body: JSON.stringify({ email: email.trim(), create_user: true, email_redirect_to: "https://13dadff.github.io/today-food/" }) });
+      setStatus("登录邮件已发送。请在当前设备打开邮件里的登录链接，然后返回网站。");
     } catch(e) { setStatus((e as Error).message); }
   }
-  async function verifyCode() {
-    if (verifying) return;
+  useEffect(() => {
+    const hash = new URLSearchParams(window.location.hash.slice(1));
+    const access = hash.get("access_token");
+    const refresh = hash.get("refresh_token");
+    if (!access || !refresh) return;
+    // Remove tokens from the visible URL before any further interaction.
+    window.history.replaceState(null, "", window.location.pathname + window.location.search);
+    const c = configRef.current;
+    if (!configOk(c)) { setStatus("登录链接已打开，但本设备尚未配置云端项目。请先填写项目 URL 和公开密钥，再重新发送登录邮件。"); return; }
     setVerifying(true);
-    try {
-      const data = await api(config, "/auth/v1/verify", { method: "POST", body: JSON.stringify({ email, token: otp.trim(), type: "email" }) });
-      if (!data.access_token || !data.user?.id) throw Error("登录未成功，请检查验证码");
-      const next: Session = { ...data, expires_at: Date.now() + data.expires_in * 1000 };
-      localStorage.setItem(SESSION_KEY, JSON.stringify(next)); sessionRef.current = next; setSession(next); setStatus("登录成功，正在检查云端数据");
-    } catch(e) { setStatus((e as Error).message); }
-    finally { setVerifying(false); }
-  }
+    void api(c, "/auth/v1/user", {}, access).then((user) => {
+      if (!user?.id) throw Error("无法验证登录身份");
+      const expires = Number(hash.get("expires_in") || "3600");
+      const next: Session = { access_token: access, refresh_token: refresh, expires_at: Date.now() + expires * 1000, user: { id: user.id, email: user.email } };
+      localStorage.setItem(SESSION_KEY, JSON.stringify(next));
+      sessionRef.current = next;
+      setSession(next);
+      setStatus("邮箱登录成功，正在检查云端数据");
+    }).catch(e => setStatus("邮箱登录失败：" + (e as Error).message)).finally(() => setVerifying(false));
+  }, []);
   function logout() {
     localStorage.removeItem(SESSION_KEY); sessionRef.current = null; setSession(null);
     readyRef.current = false; setReady(false); versionRef.current = null; setCloudVersion(null); appliedRef.current = null; awaitingStateRef.current = null; setStatus("已退出云端账号，本机数据仍保留");
@@ -139,9 +148,8 @@ export default function CloudSync({ state, setState }: { state: State; setState:
         <label>Supabase 项目 URL<input value={config.url} placeholder="https://xxxx.supabase.co" onChange={e => setConfig({ ...config, url: e.target.value.trim() })} /></label>
         <label>Supabase publishable / anon key<input value={config.key} placeholder="sb_publishable_... 或 eyJ..." onChange={e => setConfig({ ...config, key: e.target.value.trim() })} /></label>
         <label>登录邮箱<input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="friend@example.com" /></label>
-        <button className="secondary" disabled={sending || !email.includes("@")} onClick={() => void sendCode()}>{sending ? "发送中…" : "发送邮箱验证码"}</button>
-        <label>邮箱中的 6 位验证码<input inputMode="numeric" value={otp} onChange={e => setOtp(e.target.value)} placeholder="请输入验证码" /></label>
-        <button className="primary" disabled={verifying || !otp.trim()} onClick={() => void verifyCode()}>{verifying ? "验证中…" : "验证并登录"}</button>
+        <button className="secondary" disabled={sending || verifying || !email.includes("@")} onClick={() => void sendLink()}>{sending ? "发送中…" : "发送邮箱登录链接"}</button>
+        <p className="hint">请在当前设备打开邮件中的登录链接。首次登录前，请在 Supabase 的 Authentication → URL Configuration 中把 https://13dadff.github.io/today-food/ 添加到 Redirect URLs，并设为 Site URL。</p>
       </> : <>
         <p>当前账号：{session.user.email || "已登录"}</p>
         <p className="hint">云端版本：{cloudVersion ?? "尚未建立"}。有网络时自动上传改动，切换设备时会尝试拉取最新版本。</p>
