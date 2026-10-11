@@ -25,6 +25,7 @@ import {
   dateLabel,
   estimate,
   initial,
+  upgradeDefaultMenus,
   landingRotation,
   numberValue,
   STORAGE,
@@ -42,7 +43,7 @@ export default function App() {
   const [state, setState] = useState<State>(() => {
     try {
       const raw = localStorage.getItem(STORAGE);
-      return raw ? validate(JSON.parse(raw)) : initial();
+      return raw ? upgradeDefaultMenus(validate(JSON.parse(raw))) : initial();
     } catch {
       return initial();
     }
