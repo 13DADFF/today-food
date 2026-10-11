@@ -110,19 +110,35 @@ export function dailyQuote(key: string, custom: Quote[]) {
   );
   return pool[((day % pool.length) + pool.length) % pool.length];
 }
+export const personalMenu: ReadonlyArray<readonly [string, number]> = [
+  ["沙县鸡腿饭", 460],
+  ["沙县鸭腿饭", 520],
+  ["减脂麻辣烫", 450],
+  ["兰州拉面加蛋", 400],
+  ["去皮的烤鸡", 550],
+  ["老乡鸡葱油鸡加青菜", 500],
+  ["袁记云饺", 450],
+  ["赛百味不加芝士和酱", 450],
+  ["清蒸鱼加米饭", 450],
+  ["牛肉减脂沙拉", 450],
+  ["鸡胸肉减脂沙拉", 450],
+  ["烤鸡腿饭", 450],
+  ["白切鸡饭", 450],
+  ["蒸菜馆", 500],
+];
 export function initial(): State {
-  const foods = reference.map(([name, kcal], i) => ({
+  const foods = personalMenu.map(([name, kcal], i) => ({
     id: uid(),
     name,
     kcal,
-    emoji: ["🍗", "🍜", "🍅", "🍱", "🥬", "🥟", "🍛", "🍲", "🍚", "🥗"][i],
-    portion: "一份（常见外卖分量）",
+    emoji: ["🍗", "🍱", "🥬", "🍜", "🍗", "🥗", "🥟", "🥪", "🐟", "🥩", "🥗", "🍗", "🍚", "🥦"][i],
+    portion: "一份",
   }));
   return {
     version: 1,
     menus: {
-      lunch: foods.slice(0, 6),
-      dinner: foods.slice(4).map((f) => ({ ...f, id: uid() })),
+      lunch: foods,
+      dinner: foods.map((f) => ({ ...f, id: uid() })),
     },
     choices: {},
     records: {},
@@ -131,6 +147,7 @@ export function initial(): State {
     preferences: { quiet: false },
   };
 }
+
 const obj = (v: unknown): v is Record<string, unknown> =>
   !!v && typeof v === "object" && !Array.isArray(v);
 const str = (v: unknown, max = 100) =>
