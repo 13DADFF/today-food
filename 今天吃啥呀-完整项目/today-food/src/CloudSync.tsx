@@ -115,9 +115,11 @@ export default function CloudSync({ state, setState }: { state: State; setState:
   async function sendLink() {
     if (sending) return;
     setSending(true);
+    setStatus("已点击发送，正在连接邮件服务…");
     try {
       if (!configOk(config)) throw Error("请先填写有效的 Supabase 项目 URL 和 publishable/anon key");
       localStorage.setItem(CONFIG_KEY, JSON.stringify(config));
+      setStatus("正在向 Supabase 发送邮件请求（最长12秒）…");
       await api(config, "/auth/v1/otp?redirect_to=" + encodeURIComponent("https://13dadff.github.io/today-food/"), { method: "POST", body: JSON.stringify({ email: email.trim(), create_user: true }) });
       setStatus("登录邮件已发送。请在当前设备打开邮件里的登录链接，然后返回网站。");
     } catch(e) { setStatus(["TimeoutError", "AbortError"].includes((e as Error).name) ? "请求超过12秒未响应，请检查网络或VPN连接" : "邮件发送失败：" + (e as Error).message); }
@@ -153,7 +155,7 @@ export default function CloudSync({ state, setState }: { state: State; setState:
       <p className="hint">电脑与手机使用同一个邮箱账号。首次连接前请先在「设置」导出 JSON 备份。云端与本机数据冲突时不会自动合并。</p>
       {!session ? <>
         <label>登录邮箱<input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="friend@example.com" /></label>
-        <button className="secondary" disabled={sending || verifying || !email.includes("@")} onClick={() => void sendLink()}>{sending ? "发送中…" : "发送邮箱登录链接"}</button>
+        <button className="secondary" disabled={sending || verifying || !email.includes("@")} type="button" onClick={() => { setStatus("按钮已响应，准备发送登录邮件…"); void sendLink(); }}>{sending ? "发送中…" : "发送邮箱登录链接"}</button>
         <p className="hint">请在当前设备打开邮件中的登录链接，返回网站后完成登录。首次上传前，请先导出本机数据备份。</p>
       </> : <>
         <p>当前账号：{session.user.email || "已登录"}</p>
