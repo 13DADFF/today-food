@@ -148,6 +148,16 @@ export function initial(): State {
   };
 }
 
+const oldLunch = ["黄焖鸡米饭", "兰州牛肉面", "番茄牛腩饭", "鸡腿饭", "麻辣烫", "水饺"];
+const oldDinner = ["麻辣烫", "水饺", "盖浇饭", "砂锅", "炒饭", "鸡胸肉饭"];
+export function upgradeDefaultMenus(state: State): State {
+  const matches = (meal: Meal, names: string[]) =>
+    state.menus[meal].length === names.length &&
+    state.menus[meal].every((f, i) => f.name === names[i]);
+  if (!matches("lunch", oldLunch) || !matches("dinner", oldDinner)) return state;
+  return { ...state, menus: initial().menus };
+}
+
 const obj = (v: unknown): v is Record<string, unknown> =>
   !!v && typeof v === "object" && !Array.isArray(v);
 const str = (v: unknown, max = 100) =>
