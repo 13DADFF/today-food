@@ -24,6 +24,8 @@ export default function CloudSync({ state, setState }: { state: State; setState:
   const [ready, setReady] = useState(false);
   const [cloudVersion, setCloudVersion] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [verifying, setVerifying] = useState(false);
   const stateRef = useRef(state); stateRef.current = state;
   const configRef = useRef(config); configRef.current = config;
   const sessionRef = useRef(session); sessionRef.current = session;
@@ -31,6 +33,7 @@ export default function CloudSync({ state, setState }: { state: State; setState:
   const versionRef = useRef<number | null>(null);
   const busyRef = useRef(false);
   const appliedRef = useRef<string | null>(null);
+  const awaitingStateRef = useRef<string | null>(null);
   async function token() {
     const s = sessionRef.current, c = configRef.current;
     if (!s) throw Error("请先登录");
@@ -54,8 +57,9 @@ export default function CloudSync({ state, setState }: { state: State; setState:
       if (!row) { readyRef.current = false; setReady(false); versionRef.current = null; setCloudVersion(null); setStatus("云端尚无记录。请先确认本机数据，再点击上传。"); return; }
       const data = validate(row.data);
       if (readyRef.current && row.version === versionRef.current) return;
-      if (readyRef.current && appliedRef.current !== JSON.stringify(stateRef.current)) { setStatus("检测到本机未同步修改，已暂停自动覆盖。请先备份并手动处理。"); readyRef.current = false; setReady(false); return; }
+      if (readyRef.current && appliedRef.current !== JSON.stringify(stateRef.current)) { setStatus("本机有待上传的修改，先保留本机数据，稍后继续同步。"); return; }
       if (!readyRef.current && !confirm("云端已有数据。下载后会覆盖本机当前数据，建议先到设置导出 JSON 备份。确定下载云端数据吗？")) { setStatus("已取消下载，云端数据未覆盖本机。请先备份，再手动选择同步。"); return; }
+      awaitingStateRef.current = JSON.stringify(data);
       setState(data); appliedRef.current = JSON.stringify(data);
       versionRef.current = row.version; setCloudVersion(row.version);
       readyRef.current = true; setReady(true); setStatus("已从云端同步 · " + new Date().toLocaleTimeString("zh-CN"));
@@ -69,6 +73,7 @@ export default function CloudSync({ state, setState }: { state: State; setState:
     try {
       const s = sessionRef.current, c = configRef.current, current = stateRef.current;
       const row = await remote();
+      if (force && row && row.version !== versionRef.current && !confirm("云端数据已被其他设备更新。继续会覆盖这些更新，建议先分别导出备份。仍然覆盖吗？")) return;
       if (row && row.version !== versionRef.current && !force) {
         readyRef.current = false; setReady(false); setStatus("另一设备有更新，已暂停上传。请先备份并下载云端数据。"); return;
       }
@@ -92,11 +97,18 @@ export default function CloudSync({ state, setState }: { state: State; setState:
     return () => { clearInterval(t); window.removeEventListener("focus", onFocus); };
   }, [session?.user.id, config.url, config.key]);
   useEffect(() => {
-    if (!ready || appliedRef.current === JSON.stringify(state)) return;
+    if (!ready) return;
+    if (awaitingStateRef.current) {
+      if (awaitingStateRef.current === JSON.stringify(state)) awaitingStateRef.current = null;
+      return;
+    }
+    if (appliedRef.current === JSON.stringify(state)) return;
     const t = setTimeout(() => void push(), 900);
     return () => clearTimeout(t);
   }, [state, ready]);
   async function sendCode() {
+    if (sending) return;
+    setSending(true);
     try {
       if (!configOk(config)) throw Error("请先填写有效的 Supabase 项目 URL 和 publishable/anon key");
       localStorage.setItem(CONFIG_KEY, JSON.stringify(config));
@@ -105,16 +117,19 @@ export default function CloudSync({ state, setState }: { state: State; setState:
     } catch(e) { setStatus((e as Error).message); }
   }
   async function verifyCode() {
+    if (verifying) return;
+    setVerifying(true);
     try {
       const data = await api(config, "/auth/v1/verify", { method: "POST", body: JSON.stringify({ email, token: otp.trim(), type: "email" }) });
       if (!data.access_token || !data.user?.id) throw Error("登录未成功，请检查验证码");
       const next: Session = { ...data, expires_at: Date.now() + data.expires_in * 1000 };
       localStorage.setItem(SESSION_KEY, JSON.stringify(next)); sessionRef.current = next; setSession(next); setStatus("登录成功，正在检查云端数据");
     } catch(e) { setStatus((e as Error).message); }
+    finally { setVerifying(false); }
   }
   function logout() {
     localStorage.removeItem(SESSION_KEY); sessionRef.current = null; setSession(null);
-    readyRef.current = false; setReady(false); versionRef.current = null; setCloudVersion(null); appliedRef.current = null; setStatus("已退出云端账号，本机数据仍保留");
+    readyRef.current = false; setReady(false); versionRef.current = null; setCloudVersion(null); appliedRef.current = null; awaitingStateRef.current = null; setStatus("已退出云端账号，本机数据仍保留");
   }
   return <section className="cloud-widget">
     <button className="cloud-toggle" onClick={() => setOpen(!open)} aria-expanded={open}>☁️ {session ? ready ? "云端已连接" : "云同步待确认" : "开启跨设备同步"} <span>{open ? "收起 ▲" : "设置 ›"}</span></button>
@@ -124,9 +139,9 @@ export default function CloudSync({ state, setState }: { state: State; setState:
         <label>Supabase 项目 URL<input value={config.url} placeholder="https://xxxx.supabase.co" onChange={e => setConfig({ ...config, url: e.target.value.trim() })} /></label>
         <label>Supabase publishable / anon key<input value={config.key} placeholder="sb_publishable_... 或 eyJ..." onChange={e => setConfig({ ...config, key: e.target.value.trim() })} /></label>
         <label>登录邮箱<input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="friend@example.com" /></label>
-        <button className="secondary" onClick={() => void sendCode()}>发送邮箱验证码</button>
+        <button className="secondary" disabled={sending || !email.includes("@")} onClick={() => void sendCode()}>{sending ? "发送中…" : "发送邮箱验证码"}</button>
         <label>邮箱中的 6 位验证码<input inputMode="numeric" value={otp} onChange={e => setOtp(e.target.value)} placeholder="请输入验证码" /></label>
-        <button className="primary" onClick={() => void verifyCode()}>验证并登录</button>
+        <button className="primary" disabled={verifying || !otp.trim()} onClick={() => void verifyCode()}>{verifying ? "验证中…" : "验证并登录"}</button>
       </> : <>
         <p>当前账号：{session.user.email || "已登录"}</p>
         <p className="hint">云端版本：{cloudVersion ?? "尚未建立"}。有网络时自动上传改动，切换设备时会尝试拉取最新版本。</p>
